@@ -31,6 +31,10 @@ export const TaskProvider = ({ children }) => {
 		},
 	]);
 
+	const deleteTask = (id) => {
+		setTasks([...tasks.filter((task) => task.id !== id)]);
+	};
+
 	const createTask = (title, description) => {
 		setTasks([...tasks, { title, description, id: uuid() }]);
 	};
@@ -40,6 +44,7 @@ export const TaskProvider = ({ children }) => {
 			value={{
 				tasks,
 				createTask,
+				deleteTask,
 			}}
 		>
 			{children}
