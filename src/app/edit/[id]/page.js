@@ -1,5 +1,3 @@
-function page({ params }) {
-	return <div>edit {params.id}</div>;
-}
+import NewFormPage from '../../new/page';
 
-export default page;
+export default NewFormPage;

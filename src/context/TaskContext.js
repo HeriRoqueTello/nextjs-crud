@@ -1,7 +1,8 @@
 'use client';
 
-const { createContext, useContext, useState } = require('react');
+const { createContext, useContext } = require('react');
 
+import { useLocalStore } from '@/hooks/useLocalStore';
 import { v4 as uuid } from 'uuid';
 
 export const TaskContext = createContext();
@@ -13,30 +14,18 @@ export const useTasks = () => {
 };
 
 export const TaskProvider = ({ children }) => {
-	const [tasks, setTasks] = useState([
-		{
-			id: 1,
-			title: 'My first task',
-			description: 'some task',
-		},
-		{
-			id: 2,
-			title: 'My second task',
-			description: 'some second task',
-		},
-		{
-			id: 3,
-			title: 'My third task',
-			description: 'some third task',
-		},
-	]);
+	const [tasks, setTasks] = useLocalStore('tasks', []);
+
+	const createTask = (title, description) => {
+		setTasks([...tasks, { title, description, id: uuid() }]);
+	};
 
 	const deleteTask = (id) => {
 		setTasks([...tasks.filter((task) => task.id !== id)]);
 	};
 
-	const createTask = (title, description) => {
-		setTasks([...tasks, { title, description, id: uuid() }]);
+	const updateTask = (id, updatedTask) => {
+		setTasks([...tasks.map((task) => (task.id === id ? { ...task, ...updatedTask } : task))]);
 	};
 
 	return (
@@ -45,6 +34,7 @@ export const TaskProvider = ({ children }) => {
 				tasks,
 				createTask,
 				deleteTask,
+				updateTask,
 			}}
 		>
 			{children}
