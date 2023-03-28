@@ -3,44 +3,51 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTasks } from '@/context/TaskContext';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 
 function Page({ params }) {
-	const [task, setTask] = useState({
-		title: '',
-		description: '',
-	});
 	const { tasks, createTask, updateTask } = useTasks();
 	const router = useRouter();
 
-	const handleChange = (e) => {
-		setTask({ ...task, [e.target.name]: e.target.value });
-	};
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm();
 
-	const handleSubmit = (e) => {
-		e.preventDefault();
-
+	const onSubmit = handleSubmit((data) => {
 		if (params.id) {
-			updateTask(params.id, task);
+			updateTask(params.id, data);
+			toast.success('Task updated successfully');
 		} else {
-			createTask(task.title, task.description);
+			createTask(data.title, data.description);
+			toast.success('Task created successfully');
 		}
 
 		router.push('/');
-	};
+	});
 
 	useEffect(() => {
 		if (params.id) {
 			const taskFound = tasks.find((task) => task.id === params.id);
 			if (taskFound) {
-				setTask({ title: taskFound.title, description: taskFound.description });
+				setValue('title', taskFound.title);
+				setValue('description', taskFound.description);
 			}
 		}
 	}, []);
 
 	return (
-		<form onSubmit={handleSubmit}>
-			<input placeholder="Write a title" name="title" type="text" onChange={handleChange} value={task.title} />
-			<textarea placeholder="Write a description" name="description" onChange={handleChange} value={task.description}></textarea>
+		<form onSubmit={onSubmit}>
+			<input placeholder="Write a title" {...register('title', { required: true })} />
+
+			{errors.title && <span>this field is required</span>}
+
+			<textarea placeholder="Write a description" {...register('description', { required: true })}></textarea>
+
+			{errors.description && <span>this field is required</span>}
 			<button>Save</button>
 		</form>
 	);
